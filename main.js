@@ -1,0 +1,50 @@
+var http = require('http');
+var fs = require('fs');
+var url = require('url');
+
+var app = http.createServer(function(request, response){
+    var _url = request.url;
+    var queryData = url.parse(_url, true).query;
+    var title = queryData.id;
+    if(_url == '/'){
+        _url = '/index.html';
+    }
+    response.writeHead(200);
+    var template = `<!doctype html>
+    <html>
+    <head><!--본문 설명-->
+        <title>Jeaho's first Web page!!!</title>
+        <meta charset="utf-8"> <!-- 여기는 본문에 대해서 설명하는 부분 / 아래는 내용-->
+    </head>
+    
+    
+    <body><!--본문-->
+        <h1><a href = index.html>JeaHo's blog</a></h1><!--강조-->                                      <!--target = "_blank" 는 링크가 새탭에서 열리도록 하는것.-->
+        이 페이지는 생활코딩의 <a href="https://opentutorials.org/course/3084" target = "_blank" title = "html5specification">튜토리얼</a>을 따라 만든 페이지 입니다.<br><!--link-->
+        
+        <p><strong>Jeaho's first Web page!!!</strong></p>
+        <p style="margin-top:45px;">제가 처음으로 웹페이지를 한번 만들어 보았습니다. 제 친구들을 소개합니다!!!</p>
+    
+        <img src="pictures/group_photo.png" width="50%">
+        <img src="pictures/group_photo2.png" width="50%">
+        <br>
+        <strong>제 친구들을 소개합니다!</strong><br>
+        <ul><!--목록구분 unordered-->
+            <li><a href = index.html>JeaHo_Jeon</a></li>
+            <li><a href = TS_Ryu.html>Taeseoung_Ryu</a></li>
+            <li><a href = KY_Park.html>q10_Park</a></li>
+            <li><a href = GH_Koo.html>GwanHyeong_Koo</a></li>
+        </ul>
+    
+    
+        <!--paragraph / 단락-->
+        <img src="pictures/hoyane.png" width="50%"></p>
+        <!-- <p style="margin-top:45px;">
+        </p> -->
+    </body>
+    </html>`
+
+    response.end(template);
+});
+
+app.listen(3000);
