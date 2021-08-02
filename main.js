@@ -3,90 +3,87 @@ var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
 
-
-function templateList(filelist){
-    var list = '<ul>';
-    var i = 0;
-    while(i < filelist.length){
-        list = list + `<li><a href="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
-        i = i + 1;
+var template = {
+    HTML_home : function(title, list, body, create){
+        return `
+        <!doctype html>
+        <html>
+            <head><!--본문 설명-->
+                <title>Jeaho's first Web page!!!</title>
+                <meta charset="utf-8"> <!-- 여기는 본문에 대해서 설명하는 부분 / 아래는 내용-->
+            </head>
+            
+            
+            <body><!--본문-->
+                <h1><a href = /?id=home>JeaHo's blog</a></h1><!--강조-->  
+    
+                My friends, 구규승.
+                <br>
+                ${create}
+                <ul><!--목록구분 unordered-->
+                    ${list}
+                </ul>
+                ${body}
+    
+    
+                <!--<img src="data/group_photo.png" width="50%">
+                <img src="data/group_photo2.png" width="50%">-->
+                <br>
+                <strong>제 친구들을 소개합니다!</strong><br>
+    
+            
+            
+                <!--paragraph / 단락-->
+                <img src="pictures/hoyane.png" width="50%"></p>
+                <!-- <p style="margin-top:45px;">
+                </p> -->
+            </body>
+        </html>
+        `;
+    },
+    List : function(filelist){
+        var list = '<ul>';
+        var i = 0;
+        while(i < filelist.length){
+            list = list + `<li><a href="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
+            i = i + 1;
+        }
+        list = list + '</ul>';
+        return list;
+    },
+    HTML_friend : function(title, list, body, create){
+        return `
+        <!doctype html>
+        <html>
+            <head><!--본문 설명-->
+                <title>Jeaho's first Web page!!!</title>
+                <meta charset="utf-8"> <!-- 여기는 본문에 대해서 설명하는 부분 / 아래는 내용-->
+            </head>
+            
+            
+            <body><!--본문-->
+                <h1><a href = /?id=home>JeaHo's blog</a></h1><!--강조-->  
+    
+                <ul><!--목록구분 unordered-->
+                    ${list}
+                </ul>
+                ${body}
+            
+                <p>
+                ${create}
+                </p>
+            
+            
+                <!--paragraph / 단락-->
+                <img src="pictures/hoyane.png" width="50%"></p>
+                <!-- <p style="margin-top:45px;">
+                </p> -->
+            </body>
+        </html>
+        `;
     }
-    list = list + '</ul>';
-    return list;
 }
-
-
-function templateHTML_home(title, list, body, create){
-    return `
-    <!doctype html>
-    <html>
-        <head><!--본문 설명-->
-            <title>Jeaho's first Web page!!!</title>
-            <meta charset="utf-8"> <!-- 여기는 본문에 대해서 설명하는 부분 / 아래는 내용-->
-        </head>
-        
-        
-        <body><!--본문-->
-            <h1><a href = /?id=home>JeaHo's blog</a></h1><!--강조-->  
-
-            My friends, 구규승.
-            <br>
-            ${create}
-            <ul><!--목록구분 unordered-->
-                ${list}
-            </ul>
-            ${body}
-
-
-            <!--<img src="data/group_photo.png" width="50%">
-            <img src="data/group_photo2.png" width="50%">-->
-            <br>
-            <strong>제 친구들을 소개합니다!</strong><br>
-
-        
-        
-            <!--paragraph / 단락-->
-            <img src="pictures/hoyane.png" width="50%"></p>
-            <!-- <p style="margin-top:45px;">
-            </p> -->
-        </body>
-    </html>
-    `;
-}
-
-function templateHTML_friend(title, list, body, create){
-    return `
-    <!doctype html>
-    <html>
-        <head><!--본문 설명-->
-            <title>Jeaho's first Web page!!!</title>
-            <meta charset="utf-8"> <!-- 여기는 본문에 대해서 설명하는 부분 / 아래는 내용-->
-        </head>
-        
-        
-        <body><!--본문-->
-            <h1><a href = /?id=home>JeaHo's blog</a></h1><!--강조-->  
-
-            <ul><!--목록구분 unordered-->
-                ${list}
-            </ul>
-            ${body}
-        
-            <p>
-            ${create}
-            </p>
-        
-        
-            <!--paragraph / 단락-->
-            <img src="pictures/hoyane.png" width="50%"></p>
-            <!-- <p style="margin-top:45px;">
-            </p> -->
-        </body>
-    </html>
-    `;
-}
-
-
+ 
 
 
 var app = http.createServer(function(request, response){
@@ -101,23 +98,23 @@ var app = http.createServer(function(request, response){
             fs.readdir(`./data`, 'utf8', function(err, filelist){
                 var title = 'Welcome';
                 var description = 'Hello, Welcome to my web page ^-^';
-                var list = templateList(filelist);
-                var template = templateHTML_home(title, list, `<h2>${title}</h2>${description}`, `<strong><a href="/create_friend">친구추가</a></strong>`);
+                var list = template.List(filelist);
+                var html = template.HTML_home(title, list, `<h2>${title}</h2>${description}`, `<strong><a href="/create_friend">친구추가</a></strong>`);
                 response.writeHead(200);
-                response.end(template);
+                response.end(html);
             });
         } else {
             fs.readdir(`./data`, 'utf8', function(err, filelist){
                 var title = queryData.id;
-                var list = templateList(filelist);
+                var list = template.List(filelist);
                 fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description){
-                    var template = templateHTML_friend(title, list, `<h2>${title}</h2>${description}`, `<strong><a href="/create_guestbook">방명록남기기</a></strong> <strong><a href="/update?id=${title}">소개수정하기</a></strong> 
+                    var html = template.HTML_friend(title, list, `<h2>${title}</h2>${description}`, `<strong><a href="/create_guestbook">방명록남기기</a></strong> <strong><a href="/update?id=${title}">소개수정하기</a></strong> 
                     <form action="delete_process" method = "post" > 
                         <input type="hidden" name="id" value="${title}">
                         <input type="submit" value="delete">
                     </form>`);
                     response.writeHead(200);
-                    response.end(template);
+                    response.end(html);
                 });
             });
         }
@@ -138,8 +135,8 @@ var app = http.createServer(function(request, response){
         fs.readdir('./data', function(error, filelist){
             fs.readFile(`./data/${queryData.id}`, 'utf8', function(err, introduce){
               var name = queryData.id;
-              var list = templateList(filelist);
-              var template = templateHTML_friend(name, list,
+              var list = template.List(filelist);
+              var html = template.HTML_friend(name, list,
                 `
                 <form action="/update_process" method="post">
                   <input type="hidden" name="id" value="${name}">
@@ -155,7 +152,7 @@ var app = http.createServer(function(request, response){
                 ``
               );
               response.writeHead(200);
-              response.end(template);
+              response.end(html);
             });
           });
     } else if(pathname ==='/update_process'){
@@ -178,8 +175,8 @@ var app = http.createServer(function(request, response){
     } else if(pathname === '/create_friend'){
         fs.readdir('./data', function(error, filelist){
             var title = 'WEB - create';
-            var list = templateList(filelist);
-            var template = templateHTML_home(title, list, `
+            var list = template.List(filelist);
+            var html = template.HTML_home(title, list, `
                 <form action ="http://localhost:3000/create_friend_process" method="post">
                     친구의 이름과 소개글을 작성해주세요.
                     <p><input type="text" name = "name" placeholder="name"></p>
@@ -192,7 +189,7 @@ var app = http.createServer(function(request, response){
                 </form>
             `, ``);
             response.writeHead(200);
-            response.end(template);
+            response.end(html);
         });
     } else if( pathname === '/create_friend_process') {
         var body = '';
